@@ -1,0 +1,14 @@
+artifact_uri: file:///E:/Projects/Lloyd%20Bank/mlruns/437837812965042607/49b0b2861e544aa98a64014b37c12022/artifacts
+end_time: 1770376480883
+entry_point_name: ''
+experiment_id: '437837812965042607'
+lifecycle_stage: active
+run_id: 49b0b2861e544aa98a64014b37c12022
+run_name: placid-crab-445
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1770376458833
+status: 3
+tags: []
+user_id: pc

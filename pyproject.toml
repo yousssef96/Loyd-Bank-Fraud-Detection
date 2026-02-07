@@ -1,0 +1,29 @@
+[project]
+name = "lloyd-bank"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "category-encoders>=2.9.0",
+    "docker==7.1.0",
+    "fastapi>=0.128.0",
+    "great-expectations==1.5.8",
+    "lightgbm>=4.6.0",
+    "matplotlib>=3.10.8",
+    "mlflow>=3.9.0",
+    "numpy==1.26.4",
+    "openpyxl>=3.1.5",
+    "optuna>=4.7.0",
+    "pandas==2.1.4",
+    "posthog>=7.8.2",
+    "pydantic>=2.12.5",
+    "pytest>=9.0.2",
+    "python-dotenv>=1.2.1",
+    "scikit-learn>=1.8.0",
+    "seaborn>=0.13.2",
+    "streamlit>=1.54.0",
+    "xgboost>=3.1.3",
+]
+
+[tool.uv]
