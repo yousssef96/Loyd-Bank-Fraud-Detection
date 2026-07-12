@@ -7,7 +7,8 @@ from pathlib import Path
 # Config
 # ============================
 
-MODEL_DIR = Path(__file__).parent / "src" / "serving" / "model"
+
+MODEL_DIR = Path(__file__).parent.parent.parent / "src" / "serving" / "model"
 THRESHOLD = 0.5  # replace with your tuned threshold from find_best_threshold
 
 EMP_LENGTH_MAP = {
