@@ -1,13 +1,14 @@
 import pandas as pd
 from pathlib import Path
 from src.utils.logger import logger
-from src.data.load_data import load_data
+
 
 def preprocess_data(df: pd.DataFrame, target_col: str = "loan_status") -> pd.DataFrame:
     """"
     Basic cleaning for Lloyd Bank loans.
     - trim column names
     - drop ID cols
+    - drop high-cardinality free-text/categorical cols (emp_title, addr_state)
     - map target loan_status to 0/1
     - map emp_length to numeric 0 -> 10
     
@@ -21,6 +22,11 @@ def preprocess_data(df: pd.DataFrame, target_col: str = "loan_status") -> pd.Dat
         logger.info("Dropping the id column")
         # drop id if present
         df = df.drop(columns=['id'])
+
+        logger.info("Dropping high-cardinality columns not used by the model")
+        # emp_title (free text) and addr_state (high-cardinality) are excluded
+        # from the feature set entirely, matching the notebook
+        df = df.drop(columns=['emp_title', 'addr_state'])
 
         logger.info("Mapping the target column to 0 and 1")
         # target to 0/1 if it's Fully Paid/Charged Off
@@ -41,10 +47,12 @@ def preprocess_data(df: pd.DataFrame, target_col: str = "loan_status") -> pd.Dat
         return df
     except Exception:
         logger.exception("Failed to preprocess the data")
+        raise
 
 
 
 if __name__ == "__main__":
+    from src.data.load_data import load_data
     file_path = Path("data/raw/LBG Step Up Data Set.xlsx")
     df = load_data(file_path=file_path)
     df = preprocess_data(df)
