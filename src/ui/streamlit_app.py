@@ -1,17 +1,34 @@
 import streamlit as st
-import requests
-import os
+import pandas as pd
+import mlflow
+from pathlib import Path
 
 # ============================
 # Config
 # ============================
 
-API_URL = os.environ.get("API_URL", "http://127.0.0.1:8000/predict")
+MODEL_DIR = Path(__file__).parent / "src" / "serving" / "model"
+THRESHOLD = 0.5  # replace with your tuned threshold from find_best_threshold
 
 EMP_LENGTH_MAP = {
     '< 1 year': 0, '1 year': 1, '2 years': 2, '3 years': 3, '4 years': 4,
     '5 years': 5, '6 years': 6, '7 years': 7, '8 years': 8, '9 years': 9, '10+ years': 10
 }
+
+
+@st.cache_resource
+def load_model():
+    """Loads the MLflow pyfunc model once and caches it across reruns/sessions."""
+    return mlflow.pyfunc.load_model(str(MODEL_DIR))
+
+
+def predict(input_df: pd.DataFrame) -> dict:
+    model = load_model()
+    proba = model.predict(input_df)  # returns probability, since logged with pyfunc_predict_fn="predict_proba"
+    proba_value = float(proba[0]) if hasattr(proba, "__len__") else float(proba)
+    prediction = int(proba_value >= THRESHOLD)
+    return {"prediction": prediction, "probability": proba_value}
+
 
 # ============================
 # UI
@@ -20,7 +37,7 @@ EMP_LENGTH_MAP = {
 st.set_page_config(page_title="Lloyd Bank Risk Portal", layout="centered")
 
 st.title("🏦 Lloyd Bank Loan Assessment")
-st.info("This UI communicates with the FastAPI Production Model.")
+st.info("This app runs the trained model directly — no separate backend required.")
 
 
 def reset_form():
@@ -29,7 +46,6 @@ def reset_form():
 
 
 with st.form("loan_application", clear_on_submit=False):
-    # Note: addr_state and emp_title removed — not used by the current model schema
     tab1, tab2, tab3 = st.tabs(["💵 Loan & Identity", "💼 Employment", "📊 Credit History"])
 
     with tab1:
@@ -87,9 +103,7 @@ if st.button("🔄 Clear Form & Reset"):
 
 
 if submit:
-    # emp_length must be sent as the mapped numeric value (0-10), matching
-    # how preprocess_data.py transforms it during training
-    payload = {
+    input_data = {
         "annual_inc": annual_inc,
         "emp_length": EMP_LENGTH_MAP[emp_length_label],
         "home_ownership": home_ownership,
@@ -121,18 +135,12 @@ if submit:
 
     try:
         with st.spinner("Model is analyzing risk..."):
-            response = requests.post(API_URL, json=payload)
+            input_df = pd.DataFrame([input_data])
+            result = predict(input_df)
 
-        if response.status_code == 200:
-            result = response.json()
-            prediction = result["prediction"]  # 0 or 1
-            probability = result["probability"]  # float
-
-            if prediction == 1:
-                st.error(f"🔴 Likely to default — probability: {probability:.1%}")
-            else:
-                st.success(f"🟢 Not likely to default — probability: {probability:.1%}")
+        if result["prediction"] == 1:
+            st.error(f"🔴 Likely to default — probability: {result['probability']:.1%}")
         else:
-            st.warning(f"⚠️ API Error: {response.text}")
+            st.success(f"🟢 Not likely to default — probability: {result['probability']:.1%}")
     except Exception as e:
-        st.error(f"❌ Connection Failed: {e}")
+        st.error(f"❌ Prediction failed: {e}")
