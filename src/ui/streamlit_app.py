@@ -23,9 +23,30 @@ def load_model():
     return mlflow.pyfunc.load_model(str(MODEL_DIR))
 
 
+FLOAT_COLS = [
+    "annual_inc", "emp_length", "installment", "int_rate", "avg_cur_bal",
+    "inq_last_12m", "max_bal_bc", "mo_sin_old_il_acct", "mo_sin_old_rev_tl_op",
+    "mo_sin_rcnt_rev_tl_op", "mo_sin_rcnt_tl", "mort_acc", "mths_since_last_delinq",
+    "num_bc_tl", "num_il_tl", "num_op_rev_tl", "num_tl_90g_dpd_24m",
+    "num_tl_op_past_12m", "percent_bc_gt_75"
+]
+
+# columns the model signature expects as int64 ("long")
+INT_COLS = ["loan_amnt", "open_acc", "pub_rec_bankruptcies", "total_acc"]
+
+
 def predict(input_df: pd.DataFrame) -> dict:
     model = load_model()
-    proba = model.predict(input_df)  # returns probability, since logged with pyfunc_predict_fn="predict_proba"
+
+    input_df = input_df.copy()
+    for col in FLOAT_COLS:
+        if col in input_df.columns:
+            input_df[col] = input_df[col].astype("float64")
+    for col in INT_COLS:
+        if col in input_df.columns:
+            input_df[col] = input_df[col].astype("int64")
+
+    proba = model.predict(input_df)
     proba_value = float(proba[0]) if hasattr(proba, "__len__") else float(proba)
     prediction = int(proba_value >= THRESHOLD)
     return {"prediction": prediction, "probability": proba_value}
