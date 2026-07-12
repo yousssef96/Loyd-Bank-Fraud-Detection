@@ -1,0 +1,54 @@
+artifact_path: mlflow-artifacts:/1/models/m-042bd518618040eb93968d65b8e956dd/artifacts
+flavors:
+  python_function:
+    env:
+      conda: conda.yaml
+      virtualenv: python_env.yaml
+    loader_module: mlflow.sklearn
+    model_path: model.pkl
+    predict_fn: predict
+    python_version: 3.11.14
+  sklearn:
+    code: null
+    pickled_model: model.pkl
+    serialization_format: cloudpickle
+    sklearn_version: 1.8.0
+    skops_trusted_types: null
+is_signature_from_type_hint: false
+mlflow_version: 3.9.0
+model_id: m-042bd518618040eb93968d65b8e956dd
+model_size_bytes: 9359133
+model_uuid: m-042bd518618040eb93968d65b8e956dd
+prompts: null
+run_id: 93ff8a0ee3ab4334b183ba20c33ed8ff
+saved_input_example_info:
+  artifact_path: input_example.json
+  pandas_orient: split
+  serving_input_path: serving_input_example.json
+  type: dataframe
+signature:
+  inputs: '[{"type": "double", "name": "annual_inc", "required": true}, {"type": "double",
+    "name": "emp_length", "required": false}, {"type": "string", "name": "home_ownership",
+    "required": true}, {"type": "double", "name": "installment", "required": true},
+    {"type": "long", "name": "loan_amnt", "required": true}, {"type": "string", "name":
+    "purpose", "required": true}, {"type": "string", "name": "term", "required": true},
+    {"type": "double", "name": "int_rate", "required": true}, {"type": "double", "name":
+    "avg_cur_bal", "required": false}, {"type": "double", "name": "inq_last_12m",
+    "required": false}, {"type": "double", "name": "max_bal_bc", "required": false},
+    {"type": "double", "name": "mo_sin_old_il_acct", "required": false}, {"type":
+    "double", "name": "mo_sin_old_rev_tl_op", "required": false}, {"type": "double",
+    "name": "mo_sin_rcnt_rev_tl_op", "required": false}, {"type": "double", "name":
+    "mo_sin_rcnt_tl", "required": false}, {"type": "double", "name": "mort_acc", "required":
+    false}, {"type": "double", "name": "mths_since_last_delinq", "required": false},
+    {"type": "double", "name": "num_bc_tl", "required": false}, {"type": "double",
+    "name": "num_il_tl", "required": false}, {"type": "double", "name": "num_op_rev_tl",
+    "required": false}, {"type": "double", "name": "num_tl_90g_dpd_24m", "required":
+    false}, {"type": "double", "name": "num_tl_op_past_12m", "required": false}, {"type":
+    "long", "name": "open_acc", "required": true}, {"type": "double", "name": "percent_bc_gt_75",
+    "required": false}, {"type": "long", "name": "pub_rec_bankruptcies", "required":
+    true}, {"type": "long", "name": "total_acc", "required": true}, {"type": "double",
+    "name": "total_bal_ex_mort", "required": false}]'
+  outputs: '[{"type": "tensor", "tensor-spec": {"dtype": "int64", "shape": [-1]}}]'
+  params: null
+type_hint_from_example: false
+utc_time_created: '2026-07-12 14:55:31.326690'

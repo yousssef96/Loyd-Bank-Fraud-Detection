@@ -1,48 +1,21 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
-import sys
-from pathlib import Path
+from typing import Optional
+import pandas as pd
+from src.serving.inference import predict, load_model
+from src.utils.logger import logger
 
-sys.path.append(str(Path(__file__).resolve().parents[2]))
-from src.serving.inference import predict  # Core ML inference logic
+app = FastAPI(title="Loyd Bank Fraud Detection API")
 
-# Initialize FastAPI application
-app = FastAPI(
-    title="Lloyd Bank Loan Prediction API",
-    description="ML API for predicting customer loan default in the Banking industry",
-    version="1.0.0"
-)
 
-# === HEALTH CHECK ENDPOINT ===
-# CRITICAL: Required for AWS Application Load Balancer health checks
-@app.get("/")
-def root():
-    """
-    Health check endpoint for monitoring and load balancer health checks.
-    """
-    return {"status": "ok"}
-
-# === REQUEST DATA SCHEMA ===
-# Pydantic model for automatic validation and API documentation
-# === REQUEST DATA SCHEMA ===
-class CustomerLoanData(BaseModel):
-    """
-    Schema representing a Lloyd Bank loan application.
-    Includes all categorical and numeric features identified in your dataset.
-    """
-    
-    # Categorical Features
-    addr_state: str
-    emp_length: str
-    emp_title: str
-    home_ownership: str
-    purpose: str
-    term: str
-    
-    # Numeric Features (Critical for math operations)
+class LoanApplication(BaseModel):
     annual_inc: float
+    emp_length: float
+    home_ownership: str
     installment: float
     loan_amnt: float
+    purpose: str
+    term: str
     int_rate: float
     avg_cur_bal: float
     inq_last_12m: float
@@ -52,7 +25,7 @@ class CustomerLoanData(BaseModel):
     mo_sin_rcnt_rev_tl_op: float
     mo_sin_rcnt_tl: float
     mort_acc: float
-    mths_since_last_delinq: float
+    mths_since_last_delinq: Optional[float] = None
     num_bc_tl: float
     num_il_tl: float
     num_op_rev_tl: float
@@ -64,25 +37,27 @@ class CustomerLoanData(BaseModel):
     total_acc: float
     total_bal_ex_mort: float
 
-# === MAIN PREDICTION API ENDPOINT ===
-@app.post("/predict")
-def get_prediction(data: CustomerLoanData):
-    """
-    Endpoint for real-time loan default risk assessment.
-    
-    1. Validates incoming loan application data.
-    2. Passes data to the _serve_transform and model pipeline.
-    3. Returns specific Lloyd Bank risk status.
-    
-    Expected Response:
-    - {"prediction": "Likely to default"} or {"prediction": "Not likely to default"}
-    - {"error": "error_message"} if prediction fails
-    """
-    try:
-        # Convert Pydantic model to dict and call inference pipeline
-        result = predict(data.dict())
-        return {"prediction": result}
-    except Exception as e:
-        # Return error details for debugging (consider logging in production)
-        return {"error": str(e)}
 
+@app.on_event("startup")
+def startup_event():
+    load_model()
+    logger.info("API startup complete, model ready")
+
+
+@app.get("/health")
+def health_check():
+    return {"status": "ok"}
+
+
+@app.post("/predict")
+def predict_endpoint(application: LoanApplication):
+    try:
+        input_df = pd.DataFrame([application.model_dump()])
+        result = predict(input_df)
+        return {
+            "prediction": result["prediction"][0],
+            "probability": result["probability"][0]
+        }
+    except Exception as e:
+        logger.exception("Prediction request failed")
+        raise HTTPException(status_code=500, detail=str(e))

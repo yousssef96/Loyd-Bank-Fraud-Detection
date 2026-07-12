@@ -13,9 +13,11 @@ __pycache__/
 
 # Big artifacts we don't want in git
 mlruns/
+mlartifacts/
 artifacts/
 data/raw/
 data/processed/
+logs/
 
 # BUT keep our bundled serving model in the repo
 !src/serving/model/

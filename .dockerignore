@@ -1,0 +1,66 @@
+# --- Python ---
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+
+# --- Virtual environments ---
+.venv/
+venv/
+env/
+
+# --- uv ---
+.uv/
+
+# --- MLflow local tracking/artifacts (never bake these into the image) ---
+mlruns/
+mlartifacts/
+mlflow.db
+
+# --- Jupyter ---
+.ipynb_checkpoints/
+*.ipynb
+
+# --- Data (raw data shouldn't ship inside the image) ---
+data/raw/
+data/interim/
+data/processed/
+*.xlsx
+*.csv
+
+# --- Model artifacts NOT explicitly staged for this build ---
+# (src/serving/model is intentionally NOT excluded — that's the one
+# artifact we DO want copied into the image)
+
+# --- Git ---
+.git/
+.gitignore
+.gitattributes
+
+# --- IDE / editor ---
+.vscode/
+.idea/
+*.swp
+
+# --- OS junk ---
+.DS_Store
+Thumbs.db
+
+# --- Logs ---
+*.log
+logs/
+
+# --- Environment/secrets ---
+.env
+.env.*
+
+# --- Docs ---
+README.md
+docs/
+
+# --- Tests ---
+tests/
+.pytest_cache/
+.coverage
+htmlcov/

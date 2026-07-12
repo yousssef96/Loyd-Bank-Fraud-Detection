@@ -1,17 +1,30 @@
 import pandas as pd
-import os
+from pathlib import Path
+from src.utils.logger import logger
 
-def load_data(file_path: str) -> pd.DataFrame:
+
+def load_data(file_path : str | Path) -> pd.DataFrame:
     """
     Loads Excel data into a pandas DataFrame.
     
     Args:
-        file_path (str): Path to the Excel file.
+        file_path (str) : Path to Exel file
     
     Returns:
         pd.DataFrame: Loaded dataset.
     """
-    if not os.path.exists(file_path):
-        raise FileNotFoundError(f"File not found: {file_path}")
-    
-    return pd.read_excel(file_path)
+    try:
+        logger.info(f"Attempting to load data from: {file_path}")
+        df = pd.read_excel(file_path)
+        logger.info(f"Successfully loaded {len(df)} rows.")
+        return df
+    except Exception:
+        logger.exception("Failed to load Excel dataset")
+        raise
+
+
+
+if __name__ == "__main__":
+    file_path = Path("data/raw/LBG Step Up Data Set.xlsx")
+    df = load_data(file_path=file_path)
+    print(df.head())
