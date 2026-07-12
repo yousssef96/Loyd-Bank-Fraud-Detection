@@ -18,6 +18,7 @@ artifacts/
 data/raw/
 data/processed/
 logs/
+mlflow.db
 
 # BUT keep our bundled serving model in the repo
 !src/serving/model/
