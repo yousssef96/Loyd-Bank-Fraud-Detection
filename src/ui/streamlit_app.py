@@ -1,6 +1,6 @@
 import streamlit as st
 import pandas as pd
-import mlflow
+import mlflow.sklearn
 from pathlib import Path
 
 # ============================
@@ -9,7 +9,7 @@ from pathlib import Path
 
 
 MODEL_DIR = Path(__file__).parent.parent.parent / "src" / "serving" / "model"
-THRESHOLD = 0.5  # replace with your tuned threshold from find_best_threshold
+THRESHOLD = 0.5
 
 EMP_LENGTH_MAP = {
     '< 1 year': 0, '1 year': 1, '2 years': 2, '3 years': 3, '4 years': 4,
@@ -19,8 +19,7 @@ EMP_LENGTH_MAP = {
 
 @st.cache_resource
 def load_model():
-    """Loads the MLflow pyfunc model once and caches it across reruns/sessions."""
-    return mlflow.pyfunc.load_model(str(MODEL_DIR))
+    return mlflow.sklearn.load_model(str(MODEL_DIR))
 
 
 FLOAT_COLS = [
@@ -30,8 +29,6 @@ FLOAT_COLS = [
     "num_bc_tl", "num_il_tl", "num_op_rev_tl", "num_tl_90g_dpd_24m",
     "num_tl_op_past_12m", "percent_bc_gt_75"
 ]
-
-# columns the model signature expects as int64 ("long")
 INT_COLS = ["loan_amnt", "open_acc", "pub_rec_bankruptcies", "total_acc"]
 
 
@@ -46,11 +43,9 @@ def predict(input_df: pd.DataFrame) -> dict:
         if col in input_df.columns:
             input_df[col] = input_df[col].astype("int64")
 
-    proba = model.predict(input_df)
-    proba_value = float(proba[0]) if hasattr(proba, "__len__") else float(proba)
+    proba_value = float(model.predict_proba(input_df)[:, 1][0])
     prediction = int(proba_value >= THRESHOLD)
     return {"prediction": prediction, "probability": proba_value}
-
 
 # ============================
 # UI
