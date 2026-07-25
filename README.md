@@ -1,6 +1,9 @@
 # 🏦 Lloyd Bank — Loan Default Risk Prediction
 
-An end-to-end machine learning system that predicts the probability of loan default (Charged Off vs. Fully Paid) from borrower and credit history data. The project covers the full lifecycle: data preprocessing, feature engineering, model experimentation, hyperparameter tuning, experiment tracking, model registration, and deployment as a containerized REST API with a Streamlit front-end.
+An end-to-end machine learning system that predicts the probability of loan default (Charged Off vs. Fully Paid) from borrower and credit history data. The project covers the full lifecycle: data preprocessing, feature engineering, model experimentation, hyperparameter tuning, experiment tracking, model registration, and deployment as a containerized REST API with a Streamlit front-end.  
+
+Try it Live:  
+https://loyd-bank-fraud-detection-7qo62pjkzdj9fhdqfrqbhf.streamlit.app/
 
 ---
 
